@@ -47,9 +47,10 @@ class MainGUI(GUI_template):
         self.settings_button.grid(sticky="NSEW")
         self.quit_button.grid(sticky="E")
 
-        self.topframe.grid(row=0,columnspan=2, padx=MARGIN+5,pady=MARGIN+5)
-        self.leftframe.grid(row=1, column=0, padx=MARGIN,pady=MARGIN)
-        self.rightframe.grid(row=1, column=1, padx=MARGIN,pady=MARGIN)
+        EXTRA_MARGIN = 15
+        self.topframe.grid(row=0,columnspan=2, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
+        self.leftframe.grid(row=1, column=0, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
+        self.rightframe.grid(row=1, column=1, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
 
     def viewDBWindow(self):
         # init and display db window
