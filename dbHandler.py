@@ -83,15 +83,27 @@ class Handler:
             
             return obj[person]
        
-    def getUsers(self) -> list:
-        with open(self.file_name, READ_MODE) as f:
-            ## READ FILE
-            obj = json.loads(f.read())
-            people = []
-            for guy in obj: people.append(guy)
+    def getUsers(self, historical=False) -> list:
+        '''Returns list of users. Enable historical argument to handle historical data json file instead of default db file'''
+        if not historical:
+            with open(self.file_name, READ_MODE) as f:
+                ## READ FILE
+                obj = json.loads(f.read())
+                people = []
+                for guy in obj: people.append(guy)
+                
+                if people == [] or people == None: return False
+                return people
+        else:
+            with open("historical_data.json", READ_MODE) as f:
+                ## READ FILE
+                obj = json.loads(f.read())
+                people = []
+                for guy in obj: people.append(guy)
+                
+                if people == [] or people == None: return False
+                return people
             
-            if people == [] or people == None: return False
-            return people
             
     def clearDoinks(self, person):
         # Variable to hold decoded json object from file
@@ -131,12 +143,13 @@ class Handler:
                 f.write(json.dumps({}, indent=4, sort_keys=True))
         # read file and decode json
         with open("historical_data.json", READ_MODE) as f: data = json.loads(f.read())
-        ## CHECK IF PERSON EXISTS
-        people = []
-        for guy in data: people.append(guy)
+        
+        ## CHECK IF PERSON EXISTS and ADD THEM IF THEY DON'T
+        people = self.getUsers(historical=True)
         if person not in people: data[person] = []
         # add cleared doinks from db
-        data[person].append(cleared_doinks)
+        for doink in cleared_doinks: data[person].append(doink)
+        
         # write to file
         with open("historical_data.json", WRITE_MODE) as f: 
             ## ENCODE

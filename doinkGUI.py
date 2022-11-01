@@ -37,18 +37,19 @@ class MainGUI(GUI_template):
         self.gridWidgets()
 
     def gridWidgets(self):
-        self.title_label.pack()
+        self.title_label.grid()
+        self.title_label.config(font=("Futura", 36))
 
-        self.view_db_button.pack()
-        self.add_person_button.pack()
-        self.add_doink_button.pack()
-        self.clear_person_button.pack()
-        self.settings_button.pack()
-        self.quit_button.pack()
+        self.view_db_button.grid(sticky="NSEW")
+        self.add_person_button.grid(sticky="NSEW")
+        self.add_doink_button.grid(sticky="NSEW")
+        self.clear_person_button.grid(sticky="NSEW")
+        self.settings_button.grid(sticky="NSEW")
+        self.quit_button.grid(sticky="E")
 
-        self.topframe.pack(side=TOP, padx=MARGIN,pady=MARGIN)
-        self.leftframe.pack(side=LEFT, padx=MARGIN,pady=MARGIN)
-        self.rightframe.pack(side=RIGHT, padx=MARGIN,pady=MARGIN)
+        self.topframe.grid(row=0,columnspan=2, padx=MARGIN+5,pady=MARGIN+5)
+        self.leftframe.grid(row=1, column=0, padx=MARGIN,pady=MARGIN)
+        self.rightframe.grid(row=1, column=1, padx=MARGIN,pady=MARGIN)
 
     def viewDBWindow(self):
         # init and display db window
