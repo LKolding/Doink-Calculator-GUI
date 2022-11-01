@@ -116,7 +116,7 @@ class AddDoink(GUI_template):
         smokes = float(self.smokes_entry.get())
         user = self.users_list.get(self.users_list.curselection())
         self.handler.saveDoink(user, smokes, weed)
-        
+
 # Add person dialog
 class AddPerson(GUI_template):
     def createWidgets(self):
