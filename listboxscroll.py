@@ -4,7 +4,7 @@ import tkinter as tk
 
 class ScrollBox(tk.Frame): 
     def __init__(self, elements: list = None, master: tk.Tk = None):
-        '''Literally just a frame with a scrollable listbox'''
+        '''frame with a scrollable listbox'''
         tk.Frame.__init__(self, master)
         self.elements: list = elements
         self.grid()

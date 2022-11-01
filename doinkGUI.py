@@ -6,63 +6,6 @@ import dbHandler
 MARGIN = 10
 DB_FILE_PATH = "db.json"
 
-JSONDATA = {
-    "louis": [
-        {
-            "date": "03/10/2022",
-            "smokes": 2.0,
-            "time": "20:57:38",
-            "weed": 2.0
-        },
-        {
-            "date": "03/10/2022",
-            "smokes": 2.0,
-            "time": "20:57:38",
-            "weed": 2.0
-        },
-        {
-            "date": "03/10/2022",
-            "smokes": 2.0,
-            "time": "20:57:38",
-            "weed": 2.0
-        },
-    ],
-    "patty": [
-        {
-            "date": "03/10/2022",
-            "smokes": 2.0,
-            "time": "20:57:38",
-            "weed": 2.0
-        },
-        {
-            "date": "03/10/2022",
-            "smokes": 2.0,
-            "time": "20:57:38",
-            "weed": 2.0
-        },
-        {
-            "date": "03/10/2022",
-            "smokes": 2.0,
-            "time": "20:57:38",
-            "weed": 2.0
-        },
-        ],
-    "torben": [
-        {
-            "date": "03/10/2022",
-            "smokes": 2.0,
-            "time": "20:57:38",
-            "weed": 2.0
-        },
-        {
-            "date": "03/10/2022",
-            "smokes": 2.0,
-            "time": "20:57:38",
-            "weed": 2.0
-        },
-    ]
-}
-
 class GUI_template(Toplevel):
     def __init__(self, title):
         Toplevel.__init__(self)
