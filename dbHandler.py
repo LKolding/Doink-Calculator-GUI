@@ -5,21 +5,19 @@ import os
 READ_MODE = "r"
 WRITE_MODE = "w"
 
-SEPARATOR = "=" * 45
-
 class Handler:
     '''Handler to hold one specific json file (self.file_name) and handle reading and writing to it'''
+    def __init__(self, file_path): 
+            self.file_name = file_path
+            self.init_file(self.file_name)
+    
     def __getFileName__(self): return self.file_name
     
     def init_file(self, file_name):
-        '''create file if it doesn't exist'''
+        '''creates file _if_ it doesn't exist'''
         if not os.path.isfile(file_name): 
                 with open(file_name, "w") as f: 
                     f.write(json.dumps({}, indent=4, sort_keys=True))
-
-    def __init__(self, file_path): 
-        self.file_name = file_path
-        self.init_file(self.file_name)
 
     def saveDoink(self, person: str, smokes: float, weed: float) -> bool:
         '''Returns true if succesfull, false if otherwise'''
@@ -104,7 +102,6 @@ class Handler:
                 if people == [] or people == None: return False
                 return people
             
-            
     def clearDoinks(self, person):
         # Variable to hold decoded json object from file
         db: object 
@@ -158,6 +155,22 @@ class Handler:
             f.write(newobj)
 
         print(f"{person} has been cleared!")
+            
+    def getValue(self, person) -> float:
+        '''Returns total cost of all of persons ledger entries. (weed, smokes) in DKK'''
+        weed = 0.0
+        smokes = 0.0
+        
+        doinks = self.getDoinks(person)
+        
+        for sesh in doinks:
+            weed += float(sesh['weed'])
+            smokes += float(sesh['smokes'])
+            
+        weed *= 60
+        smokes *= 2.5
+        
+        return weed, smokes
 
     def addPerson(self, person):
         # Variable to hold object once decoded from json file
@@ -172,15 +185,13 @@ class Handler:
             db = json.loads(file_content)
 
         ## CHECK IF PERSON EXISTS
-        people = []
-        for guy in db: people.append(guy)
-        if person in people: raise Exception(f"Person '{person}' already exists")
+        people = self.getUsers()
+        if people != False:
+            if person in people: raise Exception(f"Person '{person}' already exists")
 
         db[person] = []
 
         with open(self.file_name, WRITE_MODE) as f:
-            db[person] = []
-
             ## ENCODE AND WRITE TO FILE
             try:
                 ## ENCODE
@@ -188,6 +199,8 @@ class Handler:
                 ## WRITE
                 f.write(newobj)
             except Exception as e: print(f"Couldn't save file\n{e}")
-        print(f"{person} has been added!")
+            else: print(f"{person} has been added!")
 
-if __name__=="__main__": exit()
+if __name__=="__main__": 
+    print("ERROR! Don't run this file. It is meant as a module")
+    exit()

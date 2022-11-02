@@ -121,15 +121,22 @@ class AddDoink(GUI_template):
 
 # Add person dialog
 class AddPerson(GUI_template):
+    
+    def __init__(self, title):
+        self.handler = dbHandler.Handler(DB_FILE_PATH)
+        GUI_template.__init__(self,title)
+    
     def createWidgets(self):
         self.name_entry = Entry(self, text="name")
-        self.add_person_button = Button(self, text="Add")
+        self.add_person_button = Button(self, text="Add", command=self.submit)
         self.gridWidgets()
         
     def gridWidgets(self):
         self.name_entry.pack(padx=MARGIN,pady=MARGIN)
         self.add_person_button.pack(padx=MARGIN,pady=MARGIN)
-
+        
+    def submit(self): self.handler.addPerson(str(self.name_entry.get()))
+        
 # Clear person dialog
 class ClearPerson(GUI_template):
     
@@ -176,16 +183,24 @@ class ViewDB(GUI_template):
             self.error_title.grid(padx=20,pady=10)
             self.gridWidgets()
             return
- 
+
         for no,person in enumerate(self.people):
+            ## PERSON TITLE INIT, CONFIG and GRID
             self.person_title = Label(self.rootframe, text=str(person))
+            try: self.person_title.config(font=("Futura", 22))
+            except: self.person_title.config(font=("Arial", 22))
             self.person_title.grid(row=0,column=no,padx=MARGIN-5,pady=MARGIN-5)
             
             person_sessions = []
             for sesh in self.handler.getDoinks(person): person_sessions.append(str(f'{sesh["date"]} {sesh["time"]} Smokes: {sesh["smokes"]} Weed: {sesh["weed"]}g'))
             
-            self.scrollbox = ScrollBox(master=self.rootframe, elements=person_sessions)
+            self.scrollbox = ScrollBox(master=self.rootframe, elements=person_sessions, x=False)
             self.scrollbox.grid(row=1,column=no,padx=MARGIN-5,pady=MARGIN-5)
+            
+            weed, smokes = self.handler.getValue(person)
+            self.cost_label = Label(self.rootframe, text=f'Weed: {weed} kr.\tSmokes: {smokes} kr.')
+            self.cost_label.config(font=("Futura", 12))
+            self.cost_label.grid(row=2, column=no)
         
         self.remove_button = Button(self.controls_frame, text="Remove").grid()
         
