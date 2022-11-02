@@ -57,9 +57,7 @@ class Handler:
 
             ## ENCODE AND WRITE TO FILE
             try:
-                ## ENCODE
                 newobj = json.dumps(db, indent=4, sort_keys=True)
-                ## WRITE
                 f.write(newobj)
             except Exception as e: print(f"Couldn't save file\n{e}")
             
@@ -88,7 +86,7 @@ class Handler:
                 people = []
                 for guy in obj: people.append(guy)
                 
-                if people == [] or people == None: return False
+                if people == [] or people == None: return []
                 return people
         else:
             with open("historical_data.json", READ_MODE) as f:
@@ -97,7 +95,7 @@ class Handler:
                 people = []
                 for guy in obj: people.append(guy)
                 
-                if people == [] or people == None: return False
+                if people == [] or people == None: return []
                 return people
             
     def clearDoinks(self, person):
@@ -141,7 +139,7 @@ class Handler:
         
         ## CHECK IF PERSON EXISTS and ADD THEM IF THEY DON'T
         people = self.getUsers(historical=True)
-        if person not in people: data[person] = []
+        if person not in people: data[person]  = []
         # add cleared doinks from db
         for doink in cleared_doinks: data[person].append(doink)
         
@@ -208,17 +206,14 @@ class Handler:
             ## DECODE
             return json.loads(file_content)
         
-    def __load__(self, settings):
+    def __load__(self, obj):
         with open(self.file_name, "w") as f:
         ## ENCODE AND WRITE TO FILE
             try:
-                ## ENCODE
-                newobj = json.dumps(settings, indent=4, sort_keys=True)
-                ## WRITE
+                newobj = json.dumps(obj, indent=4, sort_keys=True)
                 f.write(newobj)
             except Exception as e: print(f"Couldn't save file '{self.file_name}'\n{e}")
         
-
 if __name__=="__main__": 
-    print("ERROR! Don't run this file. It is meant as a module")
+    print("ERROR! Don't run this file. It is meant to be a module")
     exit()

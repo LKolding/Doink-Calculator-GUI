@@ -1,3 +1,3 @@
 from doinkGUI import MainGUI
-gui = MainGUI("Doink Calc")
+gui = MainGUI("420")
 gui.mainloop()

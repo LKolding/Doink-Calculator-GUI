@@ -20,14 +20,13 @@ class GUI_template(Toplevel):
 # Main menu window
 class MainGUI(GUI_template):
     
-    def __init__(self, title): GUI_template.__init__(self, title)
-    
     def createWidgets(self):
         self.topframe = Frame(self)
         self.leftframe = Frame(self)
         self.rightframe = Frame(self)
 
         self.title_label = Label(self.topframe, text='Doink Calculator')
+        self.title_label.config(font=("Futura", 36))
 
         self.view_db_button = Button(self.leftframe,text="View DB", command=self.viewDBWindow)
         self.add_person_button = Button(self.rightframe,text="Add person",  command=self.addPersonWindow)
@@ -39,7 +38,6 @@ class MainGUI(GUI_template):
 
     def gridWidgets(self):
         self.title_label.grid()
-        self.title_label.config(font=("Futura", 36))
 
         self.view_db_button.grid(sticky="NSEW")
         self.add_person_button.grid(sticky="NSEW")
@@ -106,6 +104,7 @@ class AddDoink(GUI_template):
         smokes = float(self.smokes_entry.get())
         user = self.users_list.get(self.users_list.curselection())
         self.handler.saveDoink(user, smokes, weed)
+        self.destroy()
 
 # Add person dialog
 class AddPerson(GUI_template):
@@ -155,6 +154,7 @@ class ClearPerson(GUI_template):
     def submit(self):
         user = self.users_list.get(self.users_list.curselection())
         self.handler.clearDoinks(user)
+        self.destroy()
 
 # View db window
 class ViewDB(GUI_template):
