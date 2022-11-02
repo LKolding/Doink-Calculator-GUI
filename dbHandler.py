@@ -11,12 +11,10 @@ class Handler:
             self.file_name = file_path
             self.init_file(self.file_name)
     
-    def __getFileName__(self): return self.file_name
-    
     def init_file(self, file_name):
         '''creates file _if_ it doesn't exist'''
         if not os.path.isfile(file_name): 
-                with open(file_name, "w") as f: 
+                with open(file_name, "w") as f:
                     f.write(json.dumps({}, indent=4, sort_keys=True))
 
     def saveDoink(self, person: str, smokes: float, weed: float) -> bool:
@@ -200,6 +198,26 @@ class Handler:
                 f.write(newobj)
             except Exception as e: print(f"Couldn't save file\n{e}")
             else: print(f"{person} has been added!")
+
+    def __dump__(self) -> dict:
+        ## READ AND DECODE CONTENTS OF FILE
+        with open(self.file_name, READ_MODE) as f:
+            ## READ
+            file_content = f.read()
+            if file_content == "" or file_content == None: raise Exception("Settings empty (?)")
+            ## DECODE
+            return json.loads(file_content)
+        
+    def __load__(self, settings):
+        with open(self.file_name, "w") as f:
+        ## ENCODE AND WRITE TO FILE
+            try:
+                ## ENCODE
+                newobj = json.dumps(settings, indent=4, sort_keys=True)
+                ## WRITE
+                f.write(newobj)
+            except Exception as e: print(f"Couldn't save file '{self.file_name}'\n{e}")
+        
 
 if __name__=="__main__": 
     print("ERROR! Don't run this file. It is meant as a module")

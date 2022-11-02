@@ -5,6 +5,7 @@ import dbHandler
 
 MARGIN = 10
 DB_FILE_PATH = "db.json"
+SETTINGS_FILE_PATH = "settings.json"
 
 class GUI_template(Toplevel):
     def __init__(self, title):
@@ -122,7 +123,10 @@ class AddPerson(GUI_template):
         self.name_entry.pack(padx=MARGIN,pady=MARGIN)
         self.add_person_button.pack(padx=MARGIN,pady=MARGIN)
         
-    def submit(self): self.handler.addPerson(str(self.name_entry.get()))
+    def submit(self):
+        try: self.handler.addPerson(str(self.name_entry.get()))
+        except: raise Exception(f"Couldn't add person {self.name_entry.get()}")
+        else: self.destroy()
         
 # Clear person dialog
 class ClearPerson(GUI_template):
@@ -179,7 +183,7 @@ class ViewDB(GUI_template):
             self.person_title.grid(row=0,column=no,padx=MARGIN-5,pady=MARGIN-5)
             
             person_sessions = []
-            for sesh in self.handler.getDoinks(person): person_sessions.append(str(f'{sesh["date"]} {sesh["time"]} Smokes: {sesh["smokes"]} Weed: {sesh["weed"]}g'))
+            for sesh in self.handler.getDoinks(person): person_sessions.append(str(f'{sesh["date"]} {sesh["time"]}    Smokes: {sesh["smokes"]} Weed: {sesh["weed"]}g'))
             
             self.scrollbox = ScrollBox(master=self.rootframe, elements=person_sessions, x=False)
             self.scrollbox.grid(row=1,column=no,padx=MARGIN-5,pady=MARGIN-5)
@@ -189,8 +193,6 @@ class ViewDB(GUI_template):
             self.cost_label.config(font=("Futura", 12))
             self.cost_label.grid(row=2, column=no)
         
-        self.remove_button = Button(self.controls_frame, text="Remove").grid()
-        
         self.gridWidgets()
             
     def gridWidgets(self):
@@ -199,13 +201,30 @@ class ViewDB(GUI_template):
 
 # Settings window
 class Settings(GUI_template):
+    
+    def __init__(self, title):
+        self.handler = dbHandler.Handler(file_path=SETTINGS_FILE_PATH)
+        self.settings = self.handler.__dump__()
+        GUI_template.__init__(self, title)
+    
     def createWidgets(self):
         self.mainframe = Frame(self)
-        self.weedCostLabel = Label(self.mainframe, text="Weed cost:")
-        self.weedCostEntry = Entry(self.mainframe)
-        self.smokeCostLabel = Label(self.mainframe, text="Smoke cost:")
-        self.smokeCostEntry = Entry(self.mainframe)
-        self.saveButton = Button(self.mainframe, text="Save")
+        
+        self.weed_cost = IntVar()
+        self.weed_cost.set(self.settings['weed_cost'])
+        self.weedCostLabel = Label(self.mainframe, text="Weed cost")
+        self.weedCostEntry = Entry(self.mainframe, textvariable=self.weed_cost)
+        
+        self.smoke_cost = IntVar()
+        self.smoke_cost.set(self.settings['smoke_cost'])
+        self.smokeCostLabel = Label(self.mainframe, text="Smoke cost")
+        self.smokeCostEntry = Entry(self.mainframe, textvariable=self.smoke_cost)
+        
+        self.show_cost = IntVar()
+        self.show_cost.set(self.settings["show_cost"])
+        self.showCostButton = Checkbutton(self.mainframe, text="Show cost", variable=self.show_cost)
+        
+        self.saveButton = Button(self.mainframe, text="Save", command=self.submit)
         self.gridWidgets()
         
     def gridWidgets(self):
@@ -213,5 +232,15 @@ class Settings(GUI_template):
         self.weedCostEntry.pack(padx=MARGIN,pady=MARGIN)
         self.smokeCostLabel.pack(padx=MARGIN,pady=MARGIN)
         self.smokeCostEntry.pack(padx=MARGIN,pady=MARGIN)
+        self.showCostButton.pack()
         self.saveButton.pack(padx=MARGIN,pady=MARGIN)
         self.mainframe.pack(padx=MARGIN,pady=MARGIN)
+        
+    def submit(self):
+        settings = {
+            "weed_cost": self.weed_cost.get(),
+            "smoke_cost": self.smoke_cost.get(),
+            "show_cost": self.show_cost.get()
+        }
+        self.handler.__load__(settings)
+        self.destroy()
