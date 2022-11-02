@@ -163,7 +163,7 @@ class Handler:
             weed += float(sesh['weed'])
             smokes += float(sesh['smokes'])
             
-        weed *= 60
+        weed *= 60.0
         smokes *= 2.5
         
         return weed, smokes

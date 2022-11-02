@@ -100,9 +100,16 @@ class AddDoink(GUI_template):
         self.botframe.pack(padx=MARGIN,pady=MARGIN)
 
     def submit(self):
-        weed = float(self.weed_entry.get())
-        smokes = float(self.smokes_entry.get())
-        user = self.users_list.get(self.users_list.curselection())
+        weed: float
+        smokes: float
+        user: str
+        try:
+            weed = float(self.weed_entry.get())
+            smokes = float(self.smokes_entry.get())
+        except: print("Please select weed and smokes amount")
+        
+        try: user = self.users_list.get(self.users_list.curselection())
+        except: print("Please select user")
         self.handler.saveDoink(user, smokes, weed)
         self.destroy()
 
