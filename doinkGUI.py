@@ -52,24 +52,11 @@ class MainGUI(GUI_template):
         self.leftframe.grid(row=1, column=0, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
         self.rightframe.grid(row=1, column=1, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
 
-    def viewDBWindow(self):
-        # init and display db window
-        dad = ViewDB("Database")
-        
-    def addPersonWindow(self):
-        # init and display add person dialog
-        dad = AddPerson("Add person")
-        
-    def addDoinkWindow(self):
-        # init and display adddoink dialog
-        dad = AddDoink(title="Add Doink")
-        
-    def clearPersonWindow(self):
-        # init and display clear person window
-        dad = ClearPerson("Clear person")
-        
-    def settingsWindow(self):
-        dad = Settings("Settings")
+    def viewDBWindow(self): dad = ViewDB("Database")
+    def addPersonWindow(self): dad = AddPerson("Add person")
+    def addDoinkWindow(self): dad = AddDoink("Add Doink")
+    def clearPersonWindow(self): dad = ClearPerson("Clear person")
+    def settingsWindow(self): dad = Settings("Settings")
 
 # Add doink dialog
 class AddDoink(GUI_template):
