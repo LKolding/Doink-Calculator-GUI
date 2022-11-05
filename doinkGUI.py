@@ -8,7 +8,7 @@ DB_FILE_PATH = "db.json"
 SETTINGS_FILE_PATH = "settings.json"
 
 class GUI_template(Toplevel):
-    def __init__(self, title):
+    def __init__(self, title: str):
         Toplevel.__init__(self)
         self.title(title)
         self.resizable(FALSE, FALSE)
@@ -20,12 +20,18 @@ class GUI_template(Toplevel):
 # Main menu window
 class MainGUI(GUI_template):
     
+    def __init__(self, master: Tk):
+        self.frame = Frame(master)
+        self.frame.pack()
+        
+        self.createWidgets()
+    
     def createWidgets(self):
-        self.topframe = Frame(self)
-        self.leftframe = Frame(self)
-        self.rightframe = Frame(self)
+        self.topframe = Frame(self.frame)
+        self.leftframe = Frame(self.frame)
+        self.rightframe = Frame(self.frame)
 
-        self.title_label = Label(self.topframe, text='Doink Calculator')
+        self.title_label = Label(self.topframe, text="Doinkydoinky")
         self.title_label.config(font=("Futura", 36))
 
         self.view_db_button = Button(self.leftframe,text="View DB", command=self.viewDBWindow)
@@ -51,11 +57,11 @@ class MainGUI(GUI_template):
         self.leftframe.grid(row=1, column=0, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
         self.rightframe.grid(row=1, column=1, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
 
-    def viewDBWindow(self): dad = ViewDB("Database")
-    def addPersonWindow(self): dad = AddPerson("Add person")
-    def addDoinkWindow(self): dad = AddDoink("Add Doink")
-    def clearPersonWindow(self): dad = ClearPerson("Clear person")
-    def settingsWindow(self): dad = Settings("Settings")
+    def viewDBWindow(self): ViewDB("Database")
+    def addPersonWindow(self): AddPerson("Add person")
+    def addDoinkWindow(self): AddDoink("Add Doink")
+    def clearPersonWindow(self): ClearPerson("Clear person")
+    def settingsWindow(self): Settings("Settings")
 
 # Add doink dialog
 class AddDoink(GUI_template):
@@ -251,3 +257,11 @@ class Settings(GUI_template):
         }
         self.handler.__load__(settings)
         self.destroy()
+            
+### TEST ###
+if __name__=="__main__":
+    print("Running testing environment...")
+    root = Tk()
+    app = MainGUI(master=root)
+    root.title("WUBBBA")
+    root.mainloop()

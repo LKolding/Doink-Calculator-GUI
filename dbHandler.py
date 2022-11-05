@@ -215,5 +215,5 @@ class Handler:
             except Exception as e: print(f"Couldn't save file '{self.file_name}'\n{e}")
         
 if __name__=="__main__": 
-    print("ERROR! Don't run this file. It is meant to be a module")
+    print("ERROR! Don't run this file. It is made as a module")
     exit()
