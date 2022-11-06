@@ -6,7 +6,7 @@ READ_MODE = "r"
 WRITE_MODE = "w"
 
 class Handler:
-    '''Handler to hold one specific json file (self.file_name) and handle reading and writing to it'''
+    '''Handler to hold one specific json file (self.file_name) and handle reading and writing to it, including en- and decoding of json'''
     def __init__(self, file_path): 
             self.file_name = file_path
             self.init_file(self.file_name)
@@ -198,6 +198,7 @@ class Handler:
             else: print(f"{person} has been added!")
 
     def __dump__(self) -> dict:
+        '''Returns settings as dict'''
         ## READ AND DECODE CONTENTS OF FILE
         with open(self.file_name, READ_MODE) as f:
             ## READ
@@ -206,7 +207,8 @@ class Handler:
             ## DECODE
             return json.loads(file_content)
         
-    def __load__(self, obj):
+    def __load__(self, obj: dict):
+        '''stores var obj into settings file'''
         with open(self.file_name, "w") as f:
         ## ENCODE AND WRITE TO FILE
             try:

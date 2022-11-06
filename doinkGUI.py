@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter.messagebox import showinfo
+from tkinter import ttk
 from listboxscroll import ScrollBox
 
 import dbHandler
@@ -108,20 +110,25 @@ class AddDoink(GUI_template):
     def submit(self):
         weed: float
         smokes: float
-        user: str
         try:
             weed = float(self.weed_entry.get())
             smokes = float(self.smokes_entry.get())
-        except: print("Please select weed and smokes amount")
+        except: 
+            print("Please type weed and smokes amount as decimal point numbers")
+            return
         
-        try: user = self.users_list.get(self.users_list.curselection())
-        except: print("Please select user")
+        user: str
+        try: 
+            user = self.users_list.get(self.users_list.curselection())
+        except: 
+            print("Please select user")
+            return
+        
         self.handler.saveDoink(user, smokes, weed)
         self.destroy()
 
 # Add person dialog
 class AddPerson(GUI_template):
-    
     def __init__(self, title):
         self.handler = dbHandler.Handler(DB_FILE_PATH)
         GUI_template.__init__(self,title)
@@ -136,10 +143,17 @@ class AddPerson(GUI_template):
         self.add_person_button.pack(padx=MARGIN,pady=MARGIN)
         
     def submit(self):
-        try: self.handler.addPerson(str(self.name_entry.get()))
-        except: raise Exception(f"Couldn't add person {self.name_entry.get()}")
+        try: 
+            name: str = self.name_entry.get()
+            if name == "": 
+                showinfo(title="Oh no tewi", message="I'm gonna need an actual name")
+                return
+            
+            self.handler.addPerson(str(self.name_entry.get()))
+            
+        except: showinfo(title="This is horrible", message="something went wrong and i wont take time to figure it out")
         else: self.destroy()
-        
+
 # Clear person dialog
 class ClearPerson(GUI_template):
     
@@ -148,38 +162,55 @@ class ClearPerson(GUI_template):
         GUI_template.__init__(self,title)
     
     def createWidgets(self):
-        # LIST OF USERS
-        self.users_list = Listbox(self, height=4)
-        users = self.handler.getUsers()
-        if users:
-            for no,user in enumerate(users): 
-                self.users_list.insert(no,user)
-        else:
-            self.users_list.insert(1,"NO USERS")
+        self.usersVariable = StringVar()
+        self.users_cbBox = ttk.Combobox(self, textvariable=self.usersVariable)
+        
+        self.users_cbBox['values'] = self.handler.getUsers() # gets list of all users from db
+        self.users_cbBox['state'] = "readonly"
+        
+        
+        
+        # self.users_list = Listbox(self, height=4)
+        # users = self.handler.getUsers()
+        # if users:
+        #     for no,user in enumerate(users): 
+        #         self.users_list.insert(no,user)
+        # else:
+        #     self.users_list.insert(1,"NO USERS")
             
         self.clear_person_button = Button(self, text="Clear", command=self.submit)
         self.gridWidgets()
         
     def gridWidgets(self):
-        self.users_list.pack(padx=MARGIN,pady=MARGIN)
+        self.users_cbBox.pack(padx=MARGIN,pady=MARGIN)
         self.clear_person_button.pack(padx=MARGIN,pady=MARGIN)
         
     def submit(self):
-        user = self.users_list.get(self.users_list.curselection())
-        self.handler.clearDoinks(user)
-        self.destroy()
+        try: user = str(self.usersVariable.get())
+        except:
+            showinfo(
+                title='Error',
+                message=f'Please select a user'
+            )
+        else:
+            self.handler.clearDoinks(user)
+            showinfo(
+                title='Big Success!',
+                message=f'{user} has been cleared'
+            )
+            self.destroy()
 
 # View db window
 class ViewDB(GUI_template):
     def __init__(self, title):
         self.handler = dbHandler.Handler(DB_FILE_PATH)
         self.people = self.handler.getUsers()
+        self.settings = dbHandler.Handler(file_path=SETTINGS_FILE_PATH).__dump__()
         
         GUI_template.__init__(self, title=title)
         
     def createWidgets(self):
         self.rootframe = Frame(self)
-        self.controls_frame = Frame(self)
         
         ## IF NO USERS ##
         if not self.people:
@@ -201,16 +232,19 @@ class ViewDB(GUI_template):
             self.scrollbox = ScrollBox(master=self.rootframe, elements=person_sessions, x=False)
             self.scrollbox.grid(row=1,column=no,padx=MARGIN-5,pady=MARGIN-5)
             
-            weed, smokes = self.handler.getValue(person)
-            self.cost_label = Label(self.rootframe, text=f'Weed: {weed} kr.\tSmokes: {smokes} kr.')
-            self.cost_label.config(font=("Futura", 12))
-            self.cost_label.grid(row=2, column=no)
+            if self.settings['show_cost']:
+                weed, smokes = self.handler.getValue(person)
+                self.cost_label = Label(self.rootframe, text=f'Weed: {weed} kr.\tSmokes: {smokes} kr.')
+                self.cost_label.config(font=("Futura", 12))
+                self.cost_label.grid(row=2, column=no)
         
+        
+        self.quitBtn = Button(self.rootframe, text="Exit",command=self.destroy)
+        self.quitBtn.grid(column=len(self.people)-1,row=3,sticky="E")
         self.gridWidgets()
             
     def gridWidgets(self):
         self.rootframe.pack(padx=MARGIN,pady=MARGIN)
-        self.controls_frame.pack(padx=MARGIN, pady=MARGIN)
 
 # Settings window
 class Settings(GUI_template):
@@ -223,41 +257,59 @@ class Settings(GUI_template):
     def createWidgets(self):
         self.mainframe = Frame(self)
         
-        self.weed_cost = IntVar()
+        # wed
+        self.weed_cost = DoubleVar()
         self.weed_cost.set(self.settings['weed_cost'])
         self.weedCostLabel = Label(self.mainframe, text="Weed cost")
         self.weedCostEntry = Entry(self.mainframe, textvariable=self.weed_cost)
         
-        self.smoke_cost = IntVar()
+        # smok
+        self.smoke_cost = DoubleVar()
         self.smoke_cost.set(self.settings['smoke_cost'])
         self.smokeCostLabel = Label(self.mainframe, text="Smoke cost")
         self.smokeCostEntry = Entry(self.mainframe, textvariable=self.smoke_cost)
         
+        # show cost
         self.show_cost = IntVar()
         self.show_cost.set(self.settings["show_cost"])
-        self.showCostButton = Checkbutton(self.mainframe, text="Show cost", variable=self.show_cost)
+        self.showCostButton = Checkbutton(self.mainframe, text="Show total debt in database", variable=self.show_cost)
         
+        # apply btn
         self.saveButton = Button(self.mainframe, text="Save", command=self.submit)
         self.gridWidgets()
         
     def gridWidgets(self):
-        self.weedCostLabel.pack(padx=MARGIN,pady=MARGIN)
-        self.weedCostEntry.pack(padx=MARGIN,pady=MARGIN)
-        self.smokeCostLabel.pack(padx=MARGIN,pady=MARGIN)
-        self.smokeCostEntry.pack(padx=MARGIN,pady=MARGIN)
-        self.showCostButton.pack()
-        self.saveButton.pack(padx=MARGIN,pady=MARGIN)
-        self.mainframe.pack(padx=MARGIN,pady=MARGIN)
+        self.weedCostLabel.grid(column= 0,row=0)
+        self.weedCostEntry.grid(column=1,row=0)
+        
+        self.smokeCostLabel.grid(column=0,row=1)
+        self.smokeCostEntry.grid(column=1,row=1)
+        
+        self.showCostButton.grid(columnspan=2, row=2)
+        self.saveButton.grid(columnspan=2, row=3)
+        
+        self.mainframe.grid(padx=MARGIN,pady=MARGIN)
         
     def submit(self):
-        settings = {
-            "weed_cost": self.weed_cost.get(),
-            "smoke_cost": self.smoke_cost.get(),
-            "show_cost": self.show_cost.get()
+        weed, smoke, show_cost = 0.0,0.0,1
+        try: 
+            weed = float(self.weed_cost.get())
+            smoke = float(self.smoke_cost.get())
+            show_cost = int(self.show_cost.get())
+            
+        except: 
+            print("Error! Please use decimal point numbers")
+            return
+        
+        else:
+            settings = {
+            "weed_cost": weed,
+            "smoke_cost": smoke,
+            "show_cost": show_cost
         }
         self.handler.__load__(settings)
         self.destroy()
-            
+ 
 ### TEST ###
 if __name__=="__main__":
     print("Running testing environment...")
