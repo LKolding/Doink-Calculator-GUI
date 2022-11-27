@@ -30,34 +30,38 @@ class MainGUI(GUI_template):
     
     def createWidgets(self):
         self.topframe = Frame(self.frame)
-        self.leftframe = Frame(self.frame)
-        self.rightframe = Frame(self.frame)
+        self.botframe = Frame(self.frame)
 
         self.title_label = Label(self.topframe, text="Doinkydoinky")
         self.title_label.config(font=("Futura", 36))
 
-        self.view_db_button = Button(self.leftframe,text="View DB", command=self.viewDBWindow)
-        self.add_person_button = Button(self.rightframe,text="Add person",  command=self.addPersonWindow)
-        self.add_doink_button = Button(self.leftframe,text="Add doink",  command=self.addDoinkWindow)
-        self.clear_person_button = Button(self.rightframe,text="Clear person",  command=self.clearPersonWindow)
-        self.settings_button = Button(self.leftframe,text="Settings",  command=self.settingsWindow)
-        self.quit_button = Button(self.rightframe,text="Quit",  command=exit)
+        self.view_db_button = Button(self.botframe,text="View DB", command=self.viewDBWindow)
+        self.add_person_button = Button(self.botframe,text="Add person",  command=self.addPersonWindow)
+        self.add_doink_button = Button(self.botframe,text="Add doink",  command=self.addDoinkWindow)
+        self.clear_person_button = Button(self.botframe,text="Clear person",  command=self.clearPersonWindow)
+        self.separator = ttk.Separator(self.botframe,orient='horizontal')
+        self.settings_button = Button(self.botframe,text="Settings",  command=self.settingsWindow)
+        self.quit_button = Button(self.botframe,text="Quit",  command=exit)
         self.gridWidgets()
 
     def gridWidgets(self):
         self.title_label.grid()
 
-        self.view_db_button.grid(sticky="NSEW")
-        self.add_person_button.grid(sticky="NSEW")
-        self.add_doink_button.grid(sticky="NSEW")
-        self.clear_person_button.grid(sticky="NSEW")
-        self.settings_button.grid(sticky="NSEW")
-        self.quit_button.grid(sticky="E")
+        # row 1
+        self.view_db_button.grid(row=0,column=0)
+        self.add_person_button.grid(row=0,column=1)
+        # 2
+        self.add_doink_button.grid(row=1,column=0)
+        self.clear_person_button.grid(row=1,column=1)
+        # 3
+        self.separator.grid(row=2,columnspan=2,sticky="EW", pady=(18,14))
+        # 4
+        self.settings_button.grid(row=3,column=0)
+        self.quit_button.grid(row=3,column=1)
 
         EXTRA_MARGIN = 15
-        self.topframe.grid(row=0,columnspan=2, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
-        self.leftframe.grid(row=1, column=0, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
-        self.rightframe.grid(row=1, column=1, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
+        self.topframe.grid(row=0, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
+        self.botframe.grid(row=1, padx=MARGIN+EXTRA_MARGIN,pady=MARGIN+EXTRA_MARGIN)
 
     def viewDBWindow(self): ViewDB("Database")
     def addPersonWindow(self): AddPerson("Add person")
@@ -84,22 +88,22 @@ class AddDoink(GUI_template):
         # LIST OF USERS
         self.users_list = Listbox(self.botframe, height=4)
         users = self.handler.getUsers()
-        if users:
-            for no,user in enumerate(users): 
-                self.users_list.insert(no,user)
-        else:
-            self.users_list.insert(1,"NO USERS")
-            
+        
+        # IF NO USERS, SHOW ERROR
+        if not users: self.users_list.insert(1,"NO USERS")
+        
+        for no,user in enumerate(users): self.users_list.insert(no,user)
+    
         # bottom
         self.add_doink_button = Button(self.botframe, text="Add", command=self.submit)
         self.gridWidgets()
         
     def gridWidgets(self):
-        self.weed_label.pack()
-        self.weed_entry.pack()
-        self.smokes_label.pack()
-        self.smokes_entry.pack()
-        self.incl_date.pack()
+        self.weed_label.pack(side="left")
+        self.weed_entry.pack(side="left")
+        self.smokes_label.pack(side="left")
+        self.smokes_entry.pack(side="left")
+        self.incl_date.pack(side="left")
         self.incl_date.select() #defaults adding date to entry
         self.users_list.pack()
         self.add_doink_button.pack()
@@ -113,20 +117,29 @@ class AddDoink(GUI_template):
         try:
             weed = float(self.weed_entry.get())
             smokes = float(self.smokes_entry.get())
-        except: 
-            print("Please type weed and smokes amount as decimal point numbers")
+        except:
+            showinfo(title='Error', message=f"Please enter weed and smokes amount as decimal point numbers")
             return
         
         user: str
-        try: 
+        try:
             user = self.users_list.get(self.users_list.curselection())
-        except: 
-            print("Please select user")
-            return
+            if user == "NO USERS": raise ValueError
+            
+        except ValueError:
+            showinfo(title='Error', message=f'add a proper user ya dingkus')
+            self.destroy()
         
-        self.handler.saveDoink(user, smokes, weed)
-        self.destroy()
-
+        except: showinfo(title='Error', message=f"Please select a user")
+        
+        else:
+            # store doink info in database file
+            try: self.handler.saveDoink(user, smokes, weed)
+            except: showinfo(title="Error", message=f"Couldn't store doink in database. Consider to verify if all values are correct and file 'db.json' isn't corrupted or protected.")
+            else:
+                showinfo(title="Success", message=f"Doink has been saved in {user}'s ledger")
+                self.destroy()
+            
 # Add person dialog
 class AddPerson(GUI_template):
     def __init__(self, title):
@@ -151,8 +164,10 @@ class AddPerson(GUI_template):
             
             self.handler.addPerson(str(self.name_entry.get()))
             
-        except: showinfo(title="This is horrible", message="something went wrong and i wont take time to figure it out")
-        else: self.destroy()
+        except: showinfo(title="This is horrible", message="something went wrong and i wont spend time to figure it out")
+        else: 
+            showinfo(title="Success",message=f"{name} has been added!")
+            self.destroy()
 
 # Clear person dialog
 class ClearPerson(GUI_template):
@@ -165,23 +180,16 @@ class ClearPerson(GUI_template):
         self.usersVariable = StringVar()
         self.users_cbBox = ttk.Combobox(self, textvariable=self.usersVariable)
         
+        self.choose_user_label = Label(self, text="Choose user...")
+        
         self.users_cbBox['values'] = self.handler.getUsers() # gets list of all users from db
         self.users_cbBox['state'] = "readonly"
         
-        
-        
-        # self.users_list = Listbox(self, height=4)
-        # users = self.handler.getUsers()
-        # if users:
-        #     for no,user in enumerate(users): 
-        #         self.users_list.insert(no,user)
-        # else:
-        #     self.users_list.insert(1,"NO USERS")
-            
         self.clear_person_button = Button(self, text="Clear", command=self.submit)
         self.gridWidgets()
         
     def gridWidgets(self):
+        self.choose_user_label.pack(pady=MARGIN, padx=MARGIN)
         self.users_cbBox.pack(padx=MARGIN,pady=MARGIN)
         self.clear_person_button.pack(padx=MARGIN,pady=MARGIN)
         
@@ -225,13 +233,14 @@ class ViewDB(GUI_template):
             try: self.person_title.config(font=("Futura", 22))
             except: self.person_title.config(font=("Arial", 22))
             self.person_title.grid(row=0,column=no,padx=MARGIN-5,pady=MARGIN-5)
-            
-            person_sessions = []
-            for sesh in self.handler.getDoinks(person): person_sessions.append(str(f'{sesh["date"]} {sesh["time"]}    Smokes: {sesh["smokes"]} Weed: {sesh["weed"]}g'))
+        
+            # GENERATE LIST OF FORMATTED STRINGS CONTAINING ALL PERSONS SESH's
+            person_sessions = [f'{sesh["date"]} {sesh["time"]}    Smokes: {sesh["smokes"]} Weed: {sesh["weed"]}g' for sesh in self.handler.getDoinks(person)]
             
             self.scrollbox = ScrollBox(master=self.rootframe, elements=person_sessions, x=False)
             self.scrollbox.grid(row=1,column=no,padx=MARGIN-5,pady=MARGIN-5)
             
+            # COST LABEL
             if self.settings['show_cost']:
                 weed, smokes = self.handler.getValue(person)
                 self.cost_label = Label(self.rootframe, text=f'Weed: {weed} kr.\tSmokes: {smokes} kr.')
@@ -290,7 +299,7 @@ class Settings(GUI_template):
         
         self.mainframe.grid(padx=MARGIN,pady=MARGIN)
         
-    def submit(self):
+    def submit(self):        
         weed, smoke, show_cost = 0.0,0.0,1
         try: 
             weed = float(self.weed_cost.get())

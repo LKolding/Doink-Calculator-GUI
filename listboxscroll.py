@@ -1,6 +1,6 @@
 #!/usr/bin/env python 
 # -*- coding: cp1252 -*-
-#   Edited by LKolding
+#   Edited (slightly) by LKolding
 import tkinter as tk
 
 BOX_WIDTH = 36
